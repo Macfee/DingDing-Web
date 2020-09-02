@@ -198,14 +198,14 @@ class Ding():
                 elif "attachments" in v['baseMessage']['content']:
                     
                     if "extension" in v['baseMessage']['content']["attachments"][-1] and 'replyContent' in v['baseMessage']['content']["attachments"][-1]['extension']:
-                        message = ("引用消息：" + v['baseMessage']['content']['attachments'][-1]['extension']['replyContent'], v['baseMessage']['createdAt'], v['baseMessage']['openIdEx']['openId'])
+                        message = ("引用消息：" + v['baseMessage']['content']['attachments'][-1]['extension'].get('replyContent', ''), v['baseMessage']['createdAt'], v['baseMessage']['openIdEx']['openId'])
                     else:
-                        message = ("分享消息：" + v['baseMessage']['content']['attachments'][-1]['extension']['title'] + " url: " + v['baseMessage']['content']['attachments'][-1]['extension']['source_url'], v['baseMessage']['createdAt'], v['baseMessage']['openIdEx']['openId'])
+                        message = ("分享消息：" + v['baseMessage']['content']['attachments'][-1]['extension'].get("title", "") + " url: " + v['baseMessage']['content']['attachments'][-1]['extension'].get("source_url", ""), v['baseMessage']['createdAt'], v['baseMessage']['openIdEx']['openId'])
                 else:
                     if "picBytes" in v['baseMessage']['content']["photoContent"]:
-                        message = ("图片消息：" + v['baseMessage']['content']["photoContent"]['picBytes'], v['baseMessage']['createdAt'], v['baseMessage']['openIdEx']['openId'])
+                        message = ("图片消息：" + v['baseMessage']['content']["photoContent"].get('picBytes',''), v['baseMessage']['createdAt'], v['baseMessage']['openIdEx']['openId'])
                     else:
-                        message = ("图片表情：" + v['baseMessage']['content']["photoContent"]['extension']['e_id'] +" "+ v['baseMessage']['content']["photoContent"]['mediaId'], v['baseMessage']['createdAt'], v['baseMessage']['openIdEx']['openId'])
+                        message = ("图片表情：" + v['baseMessage']['content']["photoContent"]['extension'].get('e_id','') +" "+ v['baseMessage']['content']["photoContent"]['mediaId'], v['baseMessage']['createdAt'], v['baseMessage']['openIdEx']['openId'])
             else:
                 continue
             
@@ -255,7 +255,7 @@ if __name__ == "__main__":
     ding = Ding()
     ding.run()
     cid_dict = ding.conversation()
-    cid = cid_dict['杭州ACE同城会2号群']
+    cid = cid_dict['测试群号']
     current_time = int(time.time()*1000)
     message_list = []
     while True:
@@ -270,13 +270,9 @@ if __name__ == "__main__":
                 # print("旧消息丢弃",v, current_time)
                 continue
             print("收到新消息", v , current_time)
-            if re.match("不要封禁", v[0].replace("\n", "")):
+            if re.match("关键词", v[0].replace("\n", "")):
                 # print("消息指令是: %s" % v[0])
                 continue
-            if re.match("(.*)(预警|封禁)(.*)((?:[0-9]{1,3}\.){3}[0-9]{1,3})", v[0].replace("\n", "")):
-                print(re.match("(.*)(预警|封禁)(.*)((?:[0-9]{1,3}\.){3}[0-9]{1,3})", v[0].replace("\n", "")))
-                data1 = re.findall(r"\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\/[0-9]{2}\b|\b(?:[0-9]{1,3}\.){3}[0-9]{1,3}\b", v[0].replace("\n", ""))
-                ding.send(cid, "阅读已完成封禁" + ",".join(data1))
                 time.sleep(2)
         current_time = data[-1][1]
         message_list = data
